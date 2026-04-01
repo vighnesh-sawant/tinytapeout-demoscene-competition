@@ -40,7 +40,7 @@ module tt_um_vighnesh_sawant_plane (
     always @(posedge clk) begin
         if (!rst_n) begin
             frame_count <= 0;
-            frame_lfsr  <= 16'hACE1;
+            frame_lfsr  <= 16'hACC1;
             pixel_lfsr  <= 19'h1_AAAA;
         end else begin
             if (x == 0 && y == 0) begin
@@ -70,7 +70,7 @@ module tt_um_vighnesh_sawant_plane (
 
     wire [6:0] fg_hash = fg_block ^ (fg_block << 2) ^ (fg_block >> 1) ^ 7'h55;
     wire [6:0] mg_hash = mg_block ^ (mg_block << 1) ^ (mg_block >> 2) ^ 7'hAA;
-    wire [6:0] bg_hash = bg_block ^ (bg_block << 3) ^ (bg_block >> 1) ^ 7'h33;
+    wire [6:0] bg_hash = (bg_block + 7'h5B) ^ (bg_block << 2) ^ 7'h13;
 
     wire [9:0] fg_h = 10'd380 - {2'b00, fg_hash, 1'b0};
     wire [9:0] mg_h = 10'd300 - {3'b000, mg_hash};
@@ -117,11 +117,11 @@ module tt_um_vighnesh_sawant_plane (
     wire [2:0] grid_y = local_y[4:2];
 
     wire [43:0] active_row =
-        (grid_y == 3'd0) ? 44'b1110_0101_0010_1010_1110_1110_1110_1110_1110_1010_1110 :
-        (grid_y == 3'd1) ? 44'b0100_0101_1010_1010_0100_1010_1010_1000_1010_1010_0100 :
-        (grid_y == 3'd2) ? 44'b0100_0101_0110_1110_0100_1110_1110_1110_1010_1010_0100 :
-        (grid_y == 3'd3) ? 44'b0100_0101_0110_0100_0100_1010_1000_1000_1010_1010_0100 :
-        (grid_y == 3'd4) ? 44'b0100_0101_0010_0100_0100_1010_1000_1110_1110_1110_0100 :
+        (grid_y == 3'd0) ? 44'b0111_0101_0010_1010_1110_1110_1110_1110_1110_1010_1110 :
+        (grid_y == 3'd1) ? 44'b0010_0101_1010_1010_0100_1010_1010_1000_1010_1010_0100 :
+        (grid_y == 3'd2) ? 44'b0010_0101_0110_1110_0100_1110_1110_1110_1010_1010_0100 :
+        (grid_y == 3'd3) ? 44'b0010_0101_0110_0100_0100_1010_1000_1000_1010_1010_0100 :
+        (grid_y == 3'd4) ? 44'b0010_0101_0010_0100_0100_1010_1000_1110_1110_1110_0100 :
                            44'd0;
 
     wire [5:0] safe_index = (grid_x < 6'd44) ? (6'd43 - grid_x) : 6'd0;

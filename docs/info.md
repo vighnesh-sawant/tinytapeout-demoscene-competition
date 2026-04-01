@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+Does xor and add and magic
 
 ## How to test
 
-Explain how to use your project
+Plug in the TinyVGA PMOD and then plug in the montior, give it a reset signal and you should be good to go
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+TinyVGA PMOD
