@@ -30,9 +30,16 @@ module tt_um_vighnesh_sawant_plane (
 
     reg [1:0] r, g, b;
     assign uo_out = {hsync, b[0], g[0], r[0], vsync, b[1], g[1], r[1]};
-    assign uio_out = 8'b0;
-    assign uio_oe  = 8'b0;
 
+    wire audio_sig;
+    ambient_music_gen music_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+       .audio_out(audio_sig)
+    );
+
+    assign uio_out = {7'b0000000, audio_sig};
+    assign uio_oe  = 8'b00000001;
     reg [12:0] frame_count;
     reg [15:0] frame_lfsr;
     reg [18:0] pixel_lfsr;
@@ -91,7 +98,8 @@ module tt_um_vighnesh_sawant_plane (
     wire mg_win = is_mg && mg_roof_margin && mg_pair && (y[2:1] == 2'b00) && ~mg_hash[1];
 
     wire [9:0] plane_x = 10'd600 - frame_count[11:2];
-    wire [9:0] plane_y = 10'd80 + (frame_count[7] ? frame_count[6:4] : ~frame_count[6:4]);
+    wire [2:0] hover_offset = frame_count[7] ? frame_count[6:4] : ~frame_count[6:4];
+    wire [9:0] plane_y = 10'd80 + hover_offset;
 
     wire plane_fuselage = (x > plane_x) && (x < plane_x + 35) && (y > plane_y + 10) && (y < plane_y + 18);
     wire plane_cockpit  = (x > plane_x + 4) && (x < plane_x + 12) && (y > plane_y + 6) && (y < plane_y + 10);
@@ -129,8 +137,8 @@ module tt_um_vighnesh_sawant_plane (
     wire is_text_pixel = is_text_bounds && (grid_x < 6'd44) && current_pixel_bit;
 
     wire is_star = (pixel_lfsr[18:10] == 9'b101101001) && (y < 130);
-
-    wire star_twinkle = (pixel_lfsr[3:0] == frame_lfsr[3:0]) && frame_lfsr[15];
+    wire slow_pulse = (frame_count[6:4] + x[5:2]) == 3'b000;
+    wire star_twinkle = (pixel_lfsr[3:0] == frame_lfsr[3:0]) && frame_lfsr[15] && slow_pulse;
 
     always_comb begin
         if (!video_active) begin
